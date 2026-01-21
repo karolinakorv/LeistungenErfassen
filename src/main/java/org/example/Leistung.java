@@ -22,7 +22,7 @@ public class Leistung {
         this.kuerzel = kuerzel;
     }
 
-    // Konstruktor mit allen Parametern inklusive ID//
+    //Konstruktor mit allen Parametern inklusive ID//
     public Leistung(int id, String bezeichnung, double preis, String kuerzel) {
         this.id = id;
         this.bezeichnung = bezeichnung;
@@ -30,7 +30,7 @@ public class Leistung {
         this.kuerzel = kuerzel;
     }
 
-    // Getter und Setter Methoden
+    //Getter und Setter Methoden
     public int getId() {
         return id;
     }
