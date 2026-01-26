@@ -78,4 +78,10 @@ public class LeistungsController {
         col.setPrefWidth(breite);
         return col;
     }
+
+    private void fuelleFelder(Leistung l) {
+        txtBez.setText(l.getBezeichnung());
+        txtPreis.setText(String.valueOf(l.getPreis()));
+        txtKuerzel.setText(l.getKuerzel());
+    }
 }
