@@ -84,4 +84,97 @@ public class LeistungsController {
         txtPreis.setText(String.valueOf(l.getPreis()));
         txtKuerzel.setText(l.getKuerzel());
     }
+    
+    private boolean validiereEingabe() {
+        if (txtBez.getText().isEmpty() || txtKuerzel.getText().isEmpty()) return false;
+
+        // Regex: Erlaubt z.B. "10", "10.5", "10.50"
+        String preisRegex = "\\d+(\\.\\d+)?";
+        return txtPreis.getText().matches(preisRegex);
+    }
+
+    // KONZEPT 4: Sortieren (Comparator Logik)
+    private void aktionSortieren() {
+        // Wir sortieren die JavaFX Liste direkt mit einem Comparator
+        datenListe.sort((l1, l2) -> l1.getBezeichnung().compareToIgnoreCase(l2.getBezeichnung()));
+    }
+
+    // --- Datenbank Queue System ---
+
+    private void ladeDaten() {
+        addTaskToQueue(() -> {
+            ArrayList<Leistung> liste = DBHelfer.alleLeistungenLaden();
+            Platform.runLater(() -> {
+                datenListe.setAll(liste);
+                System.out.println("Daten geladen.");
+            });
+        });
+    }
+
+    private void aktionHinzufuegen() {
+        if (!validiereEingabe()) return;
+        Leistung neu = new Leistung(txtBez.getText(), Double.parseDouble(txtPreis.getText()), txtKuerzel.getText());
+
+        addTaskToQueue(() -> {
+            boolean ok = DBHelfer.leistungHinzufuegen(neu);
+            if (ok) ladeDaten();
+        });
+        txtBez.clear(); txtPreis.clear(); txtKuerzel.clear();
+    }
+
+    private void aktionUpdate() {
+        Leistung auswahl = tabelle.getSelectionModel().getSelectedItem();
+        if (auswahl == null || !validiereEingabe()) return;
+
+        auswahl.setBezeichnung(txtBez.getText());
+        auswahl.setPreis(Double.parseDouble(txtPreis.getText()));
+        auswahl.setKuerzel(txtKuerzel.getText());
+
+        addTaskToQueue(() -> {
+            boolean ok = DBHelfer.leistungAktualisieren(auswahl);
+            if (ok) {
+                Platform.runLater(() -> tabelle.refresh());
+            }
+        });
+    }
+
+    private void aktionLoeschen() {
+        Leistung auswahl = tabelle.getSelectionModel().getSelectedItem();
+        if (auswahl == null) return;
+
+        addTaskToQueue(() -> {
+            boolean ok = DBHelfer.leistungLoeschen(auswahl.getId());
+            if (ok) ladeDaten();
+        });
+    }
+
+    private void addTaskToQueue(Runnable task) {
+        synchronized (dbTaskQueue) {
+            dbTaskQueue.add(task); // Queue: Enqueue
+            dbTaskQueue.notify();  // Weckt den Worker Thread auf
+        }
+    }
+
+    private void startBackgroundWorker() {
+        Thread worker = new Thread(() -> {
+            while (true) {
+                Runnable task;
+                synchronized (dbTaskQueue) {
+                    while (dbTaskQueue.isEmpty()) {
+                        try {
+                            dbTaskQueue.wait(); // Wartet auf neue Aufgaben
+                        } catch (InterruptedException e) { return; }
+                    }
+                    task = dbTaskQueue.poll(); // Queue: Dequeue (FIFO)
+                }
+                try {
+                    task.run(); // Führt die DB-Operation aus
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        worker.setDaemon(true); // Thread stirbt, wenn Programm beendet wird
+        worker.start();
+    }
 }
