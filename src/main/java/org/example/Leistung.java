@@ -1,9 +1,6 @@
 package org.example;
 
-/**
- * Datenmodell für eine Krankenhausleistung.
- * Speichert die Informationen über eine medizinische Leistung.
- */
+//Speichert die Informationen über eine medizinische Leistung//
 public class Leistung {
 
     private int id;
@@ -69,4 +66,3 @@ public class Leistung {
         return "Leistung: " + bezeichnung + " (" + kuerzel + ") - " + preis + " EUR";
     }
 }
-

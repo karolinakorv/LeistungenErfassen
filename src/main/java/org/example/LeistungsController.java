@@ -1,5 +1,6 @@
 package org.example;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -10,18 +11,24 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class LeistungsController {
 
     private final Stage stage;
 
     // Datenstruktur für Tabelle (noch ohne DB-Anbindung)
     private final ObservableList<Leistung> datenListe = FXCollections.observableArrayList();
+    private final Queue<Runnable> dbTaskQueue = new LinkedList<>();
 
     private TableView<Leistung> tabelle;
     private TextField txtBez, txtPreis, txtKuerzel;
 
     public LeistungsController(Stage stage) {
         this.stage = stage;
+        startBackgroundWorker();
     }
 
     public void anzeigeErstellen() {
@@ -50,13 +57,21 @@ public class LeistungsController {
 
         inputs.getChildren().addAll(txtBez, txtPreis, txtKuerzel);
 
+        // KORRIGIERT: Buttons erstellen und Aktionen zuweisen
+        Button btnAdd = new Button("Hinzufügen");
+        btnAdd.setOnAction(e -> aktionHinzufuegen());
+
+        Button btnUpdate = new Button("Update");
+        btnUpdate.setOnAction(e -> aktionUpdate());
+
+        Button btnDelete = new Button("Löschen");
+        btnDelete.setOnAction(e -> aktionLoeschen());
+
+        Button btnSort = new Button("Sortieren (A-Z)");
+        btnSort.setOnAction(e -> aktionSortieren());
+
         HBox buttons = new HBox(10);
-        buttons.getChildren().addAll(
-                new Button("Hinzufügen"),
-                new Button("Update"),
-                new Button("Löschen"),
-                new Button("Sortieren (A-Z)")
-        );
+        buttons.getChildren().addAll(btnAdd, btnUpdate, btnDelete, btnSort);
 
         unten.getChildren().addAll(
                 new Label("Leistungsverwaltung"),
@@ -103,7 +118,7 @@ public class LeistungsController {
 
     private void ladeDaten() {
         addTaskToQueue(() -> {
-            ArrayList<Leistung> liste = DBHelfer.alleLeistungenLaden();
+            ArrayList<Leistung> liste = DB.alleLeistungenLaden();
             Platform.runLater(() -> {
                 datenListe.setAll(liste);
                 System.out.println("Daten geladen.");
@@ -116,7 +131,7 @@ public class LeistungsController {
         Leistung neu = new Leistung(txtBez.getText(), Double.parseDouble(txtPreis.getText()), txtKuerzel.getText());
 
         addTaskToQueue(() -> {
-            boolean ok = DBHelfer.leistungHinzufuegen(neu);
+            boolean ok = DB.leistungHinzufuegen(neu);
             if (ok) ladeDaten();
         });
         txtBez.clear(); txtPreis.clear(); txtKuerzel.clear();
@@ -131,7 +146,7 @@ public class LeistungsController {
         auswahl.setKuerzel(txtKuerzel.getText());
 
         addTaskToQueue(() -> {
-            boolean ok = DBHelfer.leistungAktualisieren(auswahl);
+            boolean ok = DB.leistungAktualisieren(auswahl);
             if (ok) {
                 Platform.runLater(() -> tabelle.refresh());
             }
@@ -143,7 +158,7 @@ public class LeistungsController {
         if (auswahl == null) return;
 
         addTaskToQueue(() -> {
-            boolean ok = DBHelfer.leistungLoeschen(auswahl.getId());
+            boolean ok = DB.leistungLoeschen(auswahl.getId());
             if (ok) ladeDaten();
         });
     }
