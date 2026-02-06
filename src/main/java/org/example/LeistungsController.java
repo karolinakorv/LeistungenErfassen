@@ -41,6 +41,12 @@ public class LeistungsController {
         tabelle.getColumns().add(spalteErstellen("Preis", "preis", 100));
         tabelle.getColumns().add(spalteErstellen("Kürzel", "kuerzel", 100));
 
+        tabelle.getSelectionModel().selectedItemProperty().addListener((obs, alt, neu) -> {
+            if (neu != null) {
+                fuelleFelder(neu);
+            }
+        });
+
         // Eingabebereich
         VBox unten = new VBox(10);
         unten.setStyle("-fx-padding: 10; -fx-background-color: #f0f0f0;");
@@ -72,6 +78,21 @@ public class LeistungsController {
 
         HBox buttons = new HBox(10);
         buttons.getChildren().addAll(btnAdd, btnUpdate, btnDelete, btnSort);
+
+        // "Neu / Leeren"
+        // Damit löschst du die Eingabefelder und hebst die Auswahl in der Tabelle auf
+        Button btnReset = new Button("Neue Eingabe");
+        btnReset.setOnAction(e -> {
+            //Textfelder leeren
+            txtBez.clear();
+            txtPreis.clear();
+            txtKuerzel.clear();
+
+            tabelle.getSelectionModel().clearSelection();
+        });
+
+        buttons = new HBox(10);
+        buttons.getChildren().addAll(btnAdd, btnUpdate, btnDelete, btnSort, btnReset);
 
         unten.getChildren().addAll(
                 new Label("Leistungsverwaltung"),
