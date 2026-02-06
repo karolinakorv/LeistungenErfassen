@@ -85,6 +85,8 @@ public class LeistungsController {
         stage.setTitle("Leistungsverwaltung");
         stage.setScene(new Scene(root, 700, 500));
         stage.show();
+
+        ladeDaten();
     }
 
     private <T> TableColumn<Leistung, T> spalteErstellen(String titel, String property, double breite) {
