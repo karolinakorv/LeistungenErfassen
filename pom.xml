@@ -16,6 +16,7 @@
         <javafx.platform>mac-aarch64</javafx.platform>
     </properties>
 
+
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
