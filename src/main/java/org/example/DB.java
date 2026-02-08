@@ -13,7 +13,8 @@ public class DB {
 
     /** Die URL zur MySQL-Datenbank. */
     private static final String DB_URL = "jdbc:mysql://10.25.2.145:3306/24chko";
-    /**Holt die sicheren Login-Daten aus IntelliJ/PC-Einstellungen */
+    //Holt die sicheren Login-Daten aus IntelliJ/PC-Einstellungen
+    /** Der Datenbank-Nutzer, geladen aus der Umgebungsvariable 'DB_USER'. */
     private static final String DB_USER = System.getenv("DB_USER");
     /** Das Passwort, geladen aus der Umgebungsvariable 'DB_PASSWORD'. */
     private static final String DB_PASSWORD = System.getenv("DB_PASSWORD");

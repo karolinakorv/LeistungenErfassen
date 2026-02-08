@@ -47,34 +47,44 @@ public class Leistung {
     }
 
     //Getter und Setter Methoden
+    /** @return Die ID der Leistung. */
     public int getId() {
         return id;
     }
 
+    /**
+     * @param id Die neue ID der Leistung.
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /** @return Die Bezeichnung der Leistung. */
     public String getBezeichnung() {
         return bezeichnung;
     }
 
+    /** @param bezeichnung Die neue Bezeichnung der Leistung. */
     public void setBezeichnung(String bezeichnung) {
         this.bezeichnung = bezeichnung;
     }
 
+    /** @return Preis der Leistung. */
     public double getPreis() {
         return preis;
     }
 
+    /** @param preis Der neue Preis der Leistung. */
     public void setPreis(double preis) {
         this.preis = preis;
     }
 
+    /** @return Kürzel der Leistung. */
     public String getKuerzel() {
         return kuerzel;
     }
 
+    /** @param kuerzel Das neue Kürzel der Leistung. */
     public void setKuerzel(String kuerzel) {
         this.kuerzel = kuerzel;
     }

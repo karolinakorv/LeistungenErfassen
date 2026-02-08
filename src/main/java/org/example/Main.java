@@ -3,6 +3,12 @@ package org.example;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+/*
+  Projekt: Leistungsverwaltung JavaFX
+  Beschreibung: Eine Anwendung zurVerwaltung von medizinischen Leistungen mit MySQL-Anbindung und asynchroner Datenverarbeitung.
+  Projekt von Karolina KORVIN-PIOTROVSKA und Angeh Whitney Chu
+ */
+
 /**
  *Diese Klasse dient lediglich als Einstiegspunkt und startet die JavaFX-Applikation.
  */
