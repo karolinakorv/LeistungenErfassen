@@ -95,7 +95,7 @@ public class LeistungsController {
         buttons.getChildren().addAll(btnAdd, btnUpdate, btnDelete, btnSort, btnReset);
 
         unten.getChildren().addAll(
-                new Label("Leistungsverwaltung"),
+                new Label("Geben Sie Ihre Leistung ein:"),
                 inputs,
                 buttons
         );
