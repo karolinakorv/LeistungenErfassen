@@ -15,22 +15,46 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+
+/**
+ * Der LeistungsController steuert die Benutzeroberfläche zur Verwaltung von Leistungen.
+ * Er fungiert als Bindeglied zwischen der View (JavaFX), dem Datenmodell (Leistung)
+ * und der Datenbank-Logik (DB).
+ * Enthält ein eigenes Warteschlangen-System (Background Worker),
+ * um Datenbankzugriffe asynchron vom UI-Thread durchzuführen.
+ */
 public class LeistungsController {
 
-    private final Stage stage;
+    private final Stage stage; //Referenz zum Hauptfenster der Anwendung
 
     // Datenstruktur für Tabelle (noch ohne DB-Anbindung)
-    private final ObservableList<Leistung> datenListe = FXCollections.observableArrayList();
-    private final Queue<Runnable> dbTaskQueue = new LinkedList<>();
+    /** Eine beobachtbare Liste der Leistungen.
+     * Änderungen an dieser Liste werden automatisch in der TableView reflektiert.
+     */
+    private final ObservableList<Leistung> datenListe = FXCollections.observableArrayList(); //JavaFX-spezifische Liste, Änderungen werden automatisch in der TableView angezeigt
+
+    /**
+     * Warteschlange für Datenbankoperationen.
+     * Thread-sichere, asynchrone DB-Zugriffe
+     */
+    private final Queue<Runnable> dbTaskQueue = new LinkedList<>(); //Warteschlange für Datenbankoperationen, sorgt für thread-sichere, asynchrone DB-Zugriffe
 
     private TableView<Leistung> tabelle;
     private TextField txtBez, txtPreis, txtKuerzel;
 
-    public LeistungsController(Stage stage) {
+    /**
+     * Konstruktor des Controllers.
+     * @param stage Die primaryStage, auf der die GUI gemacht werden soll.
+     */
+    public LeistungsController(Stage stage) { //speichert die Stage
         this.stage = stage;
-        startBackgroundWorker();
+        startBackgroundWorker(); //Startet Hintergrund-Thread, wichitg damit nicht alles einfiert
     }
 
+    /**
+     * Erstellt den gesamten Aufbau der Benutzeroberfläche (Tabelle, Eingabefelder, Buttons)
+     * und zeigt das Fenster an.
+     */
     public void anzeigeErstellen() {
         BorderPane root = new BorderPane();
 
@@ -41,7 +65,7 @@ public class LeistungsController {
         tabelle.getColumns().add(spalteErstellen("Preis", "preis", 100));
         tabelle.getColumns().add(spalteErstellen("Kürzel", "kuerzel", 100));
 
-        tabelle.getSelectionModel().selectedItemProperty().addListener((obs, alt, neu) -> {
+        tabelle.getSelectionModel().selectedItemProperty().addListener((obs, alt, neu) -> { //reagirt auf klicks, füllt textfelder, update funktion
             if (neu != null) {
                 fuelleFelder(neu);
             }
@@ -110,6 +134,14 @@ public class LeistungsController {
         ladeDaten();
     }
 
+    /**
+     * Hilfsmethode zum Erstellen einer Tabellenspalte.
+     * @param titel Der Anzeigename der Spalte
+     * @param property Der Name des Attributs in der Klasse (Leistung)
+     * @param breite Die bevorzugte Breite der Spalte
+     * @return Eine konfigurierte TableColumn
+     * @param <T> Datentyp der Spalte
+     */
     private <T> TableColumn<Leistung, T> spalteErstellen(String titel, String property, double breite) {
         TableColumn<Leistung, T> col = new TableColumn<>(titel);
         col.setCellValueFactory(new PropertyValueFactory<>(property));
@@ -117,12 +149,20 @@ public class LeistungsController {
         return col;
     }
 
+    /**
+     * Füllt die Eingabefelder mit den Daten einer gewählten Leistung
+     * @param l Die gewählte Leistung
+     */
     private void fuelleFelder(Leistung l) {
         txtBez.setText(l.getBezeichnung());
         txtPreis.setText(String.valueOf(l.getPreis()));
         txtKuerzel.setText(l.getKuerzel());
     }
-    
+
+    /**
+     * Prüft, ob die Benutzereingaben in den Textfeldern gültig sind.
+     * @return true, wenn die Eingabe korrekt ist, sonst false
+     */
     private boolean validiereEingabe() {
         if (txtBez.getText().isEmpty() || txtKuerzel.getText().isEmpty()) return false;
 
@@ -132,6 +172,9 @@ public class LeistungsController {
     }
 
     // KONZEPT 4: Sortieren (Comparator Logik)
+    /**
+     * Sortiert die Liste der Leistungen alphabetisch nach Bezeichnung.
+     */
     private void aktionSortieren() {
         // Wir sortieren die JavaFX Liste direkt mit einem Comparator
         datenListe.sort((l1, l2) -> l1.getBezeichnung().compareToIgnoreCase(l2.getBezeichnung()));
@@ -139,6 +182,9 @@ public class LeistungsController {
 
     // --- Datenbank Queue System ---
 
+    /**
+     * Lädt alle Leistungen asynchron aus der Datenbank und aktualisiert die Liste
+     */
     private void ladeDaten() {
         addTaskToQueue(() -> {
             ArrayList<Leistung> liste = DB.alleLeistungenLaden();
@@ -149,6 +195,9 @@ public class LeistungsController {
         });
     }
 
+    /**
+     * Liest die Felder aus und fügt eine neue Leistung zur DB hinzu
+     */
     private void aktionHinzufuegen() {
         if (!validiereEingabe()) return;
         Leistung neu = new Leistung(txtBez.getText(), Double.parseDouble(txtPreis.getText()), txtKuerzel.getText());
@@ -160,6 +209,9 @@ public class LeistungsController {
         txtBez.clear(); txtPreis.clear(); txtKuerzel.clear();
     }
 
+    /**
+     * Aktualisiert eine bestehende Leistung in der Datenbank
+     */
     private void aktionUpdate() {
         Leistung auswahl = tabelle.getSelectionModel().getSelectedItem();
         if (auswahl == null || !validiereEingabe()) return;
@@ -176,6 +228,9 @@ public class LeistungsController {
         });
     }
 
+    /**
+     * Löscht die aktuell in der Tabelle markierte Leistung aus der Datenbank
+     */
     private void aktionLoeschen() {
         Leistung auswahl = tabelle.getSelectionModel().getSelectedItem();
         if (auswahl == null) return;
@@ -186,6 +241,10 @@ public class LeistungsController {
         });
     }
 
+    /**
+     * Fügt einen Datenbank-Task zur Warteschlange hinzu und benachrichtigt den Worker
+     * @param task Ein Runnable, das die Datenbank-Operation enthält
+     */
     private void addTaskToQueue(Runnable task) {
         synchronized (dbTaskQueue) {
             dbTaskQueue.add(task); // Queue: Enqueue
@@ -193,6 +252,10 @@ public class LeistungsController {
         }
     }
 
+    /**
+     * Startet einen Thread, der permanent die dbTaskQueue abarbeitet.
+     * Verhindert das Blockieren der Benutzeroberfläche (UI-Freeze) bei langen DB-Abfragen
+     */
     private void startBackgroundWorker() {
         Thread worker = new Thread(() -> {
             while (true) {

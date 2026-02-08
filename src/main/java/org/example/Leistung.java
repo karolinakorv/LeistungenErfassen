@@ -1,6 +1,12 @@
 package org.example;
 
+
 //Speichert die Informationen über eine medizinische Leistung//
+/**
+ * Repräsentiert eine medizinische Leistung im System.
+ * Diese Klasse dient für die Speicherung und Anzeige von Leistungsinformationen wie
+ * Bezeichnung, Preis und Kürzel.
+ */
 public class Leistung {
 
     private int id;
@@ -8,18 +14,31 @@ public class Leistung {
     private double preis;
     private String kuerzel;
 
-    //Standard-Konstruktor ohne Parameter//
+    /**
+     * Standard-Konstruktor ohne Parameter.
+     */
     public Leistung() {
     }
 
-    //Konstruktor mit allen Parametern außer ID//
+    /**
+     * Konstruktor zum Erstellen einer neuen Leistung (noch ohne Datenbank-ID).
+     * @param bezeichnung Die Bezeichnung der Leistung.
+     * @param preis Der Preis der Leistung.
+     * @param kuerzel Das Kürzel der Leistung.
+     */
     public Leistung(String bezeichnung, double preis, String kuerzel) {
         this.bezeichnung = bezeichnung;
         this.preis = preis;
         this.kuerzel = kuerzel;
     }
 
-    //Konstruktor mit allen Parametern inklusive ID//
+    /**
+     * Konstruktor zum Laden einer existierenden Leistung mit bekannter ID.
+     * @param id Die ID aus der Datenbank.
+     * @param bezeichnung Die Bezeichnung der Leistung.
+     * @param preis Der Preis der Leistung.
+     * @param kuerzel Das Kürzel der Leistung.
+     */
     public Leistung(int id, String bezeichnung, double preis, String kuerzel) {
         this.id = id;
         this.bezeichnung = bezeichnung;
@@ -60,7 +79,10 @@ public class Leistung {
         this.kuerzel = kuerzel;
     }
 
-    //String-Darstellung der Leistung//
+    /**
+     * Gibt eine textuelle Zusammenfassung der Leistung zurück, als String.
+     * @return Ein String im Format "Leistung: Name (Kürzel) - Preis EUR".
+     */
     @Override
     public String toString() {
         return "Leistung: " + bezeichnung + " (" + kuerzel + ") - " + preis + " EUR";
